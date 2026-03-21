@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.IntStream;
 
 @Service
 public class VehicleService {
@@ -43,29 +44,42 @@ public class VehicleService {
 
         List<Vehicle> vehicles = new ArrayList<>();
 
-        // Create trucks
-        for (int i = 0; i < truckCount; i++) {
-            Vehicle truck = vehicleFactory.createVehicle(VehicleType.TRUCK);
-            vehicles.add(vehicleRepository.save(truck));
-            logger.info("Created TRUCK: {} with capacity {}kg", truck.getLicensePlate(), truck.getCapacity());
-        }
+        // Create all vehicles using Stream API
+        List<Vehicle> trucks = IntStream.range(0, truckCount)
+            .mapToObj(i -> vehicleFactory.createVehicle(VehicleType.TRUCK))
+            .toList();
 
-        // Create vans
-        for (int i = 0; i < vanCount; i++) {
-            Vehicle van = vehicleFactory.createVehicle(VehicleType.VAN);
-            vehicles.add(vehicleRepository.save(van));
-            logger.info("Created VAN: {} with capacity {}kg", van.getLicensePlate(), van.getCapacity());
-        }
+        List<Vehicle> vans = IntStream.range(0, vanCount)
+            .mapToObj(i -> vehicleFactory.createVehicle(VehicleType.VAN))
+            .toList();
 
-        // Create drones
-        for (int i = 0; i < droneCount; i++) {
-            Vehicle drone = vehicleFactory.createVehicle(VehicleType.DRONE);
-            vehicles.add(vehicleRepository.save(drone));
-            logger.info("Created DRONE: {} with capacity {}kg", drone.getLicensePlate(), drone.getCapacity());
-        }
+        List<Vehicle> drones = IntStream.range(0, droneCount)
+            .mapToObj(i -> vehicleFactory.createVehicle(VehicleType.DRONE))
+            .toList();
 
-        logger.info("Fleet initialization complete: {} vehicles created", vehicles.size());
-        return vehicles;
+        vehicles.addAll(trucks);
+        vehicles.addAll(vans);
+        vehicles.addAll(drones);
+
+        // Bulk insert all vehicles in one transaction
+        List<Vehicle> savedVehicles = vehicleRepository.saveAll(vehicles);
+
+        // Log created vehicles
+        savedVehicles.forEach(vehicle ->
+            logger.info("Created {}: {} with capacity {}kg",
+                vehicle.getType(), vehicle.getLicensePlate(), vehicle.getCapacity())
+        );
+
+        logger.info("Fleet initialization complete: {} vehicles created", savedVehicles.size());
+        return savedVehicles;
+    }
+
+    @Transactional
+    public Vehicle createVehicle(Vehicle vehicle) {
+        logger.info("Creating vehicle with license plate: {}", vehicle.getLicensePlate());
+        Vehicle savedVehicle = vehicleRepository.save(vehicle);
+        logger.info("Vehicle created successfully with ID: {}", savedVehicle.getId());
+        return savedVehicle;
     }
 
     public List<Vehicle> getAllVehicles() {

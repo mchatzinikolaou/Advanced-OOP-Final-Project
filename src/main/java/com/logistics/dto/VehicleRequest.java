@@ -1,6 +1,6 @@
-package com.logistics.model;
+package com.logistics.dto;
 
-import jakarta.persistence.*;
+import com.logistics.model.VehicleType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -9,22 +9,12 @@ import lombok.Setter;
 
 @Setter
 @Getter
-@Entity
-@Table(name = "vehicles")
-public class Vehicle {
-
-    // Getters and Setters
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class VehicleRequest {
 
     @NotNull(message = "Vehicle type is required")
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private VehicleType type;
 
     @NotBlank(message = "License plate is required")
-    @Column(nullable = false, unique = true)
     private String licensePlate;
 
     @NotNull(message = "Capacity is required")
@@ -35,11 +25,10 @@ public class Vehicle {
     @Positive(message = "Speed must be positive")
     private Double speed;
 
-    // Constructors
-    public Vehicle() {
+    public VehicleRequest() {
     }
 
-    public Vehicle(VehicleType type, String licensePlate, Double capacity, Double speed) {
+    public VehicleRequest(VehicleType type, String licensePlate, Double capacity, Double speed) {
         this.type = type;
         this.licensePlate = licensePlate;
         this.capacity = capacity;

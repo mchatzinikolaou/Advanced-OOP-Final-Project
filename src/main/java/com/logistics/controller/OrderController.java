@@ -27,10 +27,6 @@ public class OrderController {
         this.orderService = orderService;
     }
 
-    /**
-     * POST /orders - Create new order and process asynchronously
-     * Returns 202 ACCEPTED immediately while processing happens in background
-     */
     @PostMapping
     public ResponseEntity<OrderResponse> createOrder(@Valid @RequestBody OrderRequest request) {
         long startTime = System.currentTimeMillis();
