@@ -1,5 +1,6 @@
 package com.logistics.controller;
 
+import com.logistics.dto.OrderDetailResponse;
 import com.logistics.dto.OrderRequest;
 import com.logistics.dto.OrderResponse;
 import com.logistics.model.Order;
@@ -59,12 +60,9 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
     }
 
-    /**
-     * GET /orders - Get all orders
-     */
     @GetMapping
-    public ResponseEntity<List<Order>> getAllOrders() {
-        List<Order> orders = orderService.getAllOrders();
+    public ResponseEntity<List<OrderDetailResponse>> getAllOrders() {
+        List<OrderDetailResponse> orders = orderService.getAllOrders();
         return ResponseEntity.ok(orders);
     }
 
@@ -72,8 +70,8 @@ public class OrderController {
      * GET /orders/{id} - Get order by ID
      */
     @GetMapping("/{id}")
-    public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
-        Order order = orderService.getOrderById(id);
+    public ResponseEntity<OrderDetailResponse> getOrderById(@PathVariable Long id) {
+        OrderDetailResponse order = orderService.getOrderById(id);
         return ResponseEntity.ok(order);
     }
 }

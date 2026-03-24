@@ -1,11 +1,13 @@
 package com.logistics.model;
 
+
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 
 @Entity
+@SuppressWarnings("JpaDataSourceORMInspection")
 @Table(name = "vehicles")
 public class Vehicle {
 
@@ -29,6 +31,9 @@ public class Vehicle {
     @NotNull(message = "Speed is required")
     @Positive(message = "Speed must be positive")
     private Double speed;
+
+    @Column(nullable = false)
+    private boolean available = true;
 
     // Constructors
     public Vehicle() {
@@ -80,5 +85,13 @@ public class Vehicle {
 
     public void setSpeed(Double speed) {
         this.speed = speed;
+    }
+
+    public boolean isAvailable() {
+        return available;
+    }
+
+    public void setAvailable(boolean available) {
+        this.available = available;
     }
 }

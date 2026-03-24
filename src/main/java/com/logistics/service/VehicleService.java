@@ -1,5 +1,6 @@
 package com.logistics.service;
 
+import com.logistics.dto.VehicleResponse;
 import com.logistics.factory.VehicleFactory;
 import com.logistics.model.Vehicle;
 import com.logistics.model.VehicleType;
@@ -13,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @Service
@@ -39,7 +41,7 @@ public class VehicleService {
     }
 
     @Transactional
-    public List<Vehicle> initializeFleet() {
+    public List<VehicleResponse> initializeFleet() {
         logger.info("Initializing vehicle fleet using Factory Method Pattern");
 
         List<Vehicle> vehicles = new ArrayList<>();
@@ -71,23 +73,43 @@ public class VehicleService {
         );
 
         logger.info("Fleet initialization complete: {} vehicles created", savedVehicles.size());
-        return savedVehicles;
+
+        // Convert to DTOs before returning
+        return savedVehicles.stream()
+            .map(this::convertToResponse)
+            .collect(Collectors.toList());
     }
 
     @Transactional
-    public Vehicle createVehicle(Vehicle vehicle) {
+    public VehicleResponse createVehicle(Vehicle vehicle) {
         logger.info("Creating vehicle with license plate: {}", vehicle.getLicensePlate());
         Vehicle savedVehicle = vehicleRepository.save(vehicle);
         logger.info("Vehicle created successfully with ID: {}", savedVehicle.getId());
-        return savedVehicle;
+        return convertToResponse(savedVehicle);
     }
 
-    public List<Vehicle> getAllVehicles() {
-        return vehicleRepository.findAll();
+    public List<VehicleResponse> getAllVehicles() {
+        return vehicleRepository.findAll().stream()
+            .map(this::convertToResponse)
+            .collect(Collectors.toList());
     }
 
-    public Vehicle getVehicleById(Long id) {
-        return vehicleRepository.findById(id)
+    public VehicleResponse getVehicleById(Long id) {
+        Vehicle vehicle = vehicleRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Vehicle not found: " + id));
+        return convertToResponse(vehicle);
+    }
+
+    /**
+     * Converts Vehicle entity to VehicleResponse DTO
+     */
+    private VehicleResponse convertToResponse(Vehicle vehicle) {
+        return new VehicleResponse(
+            vehicle.getId(),
+            vehicle.getType(),
+            vehicle.getLicensePlate(),
+            vehicle.getCapacity(),
+            vehicle.getSpeed()
+        );
     }
 }

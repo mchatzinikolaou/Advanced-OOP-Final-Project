@@ -1,5 +1,6 @@
 package com.logistics.service;
 
+import com.logistics.dto.OrderDetailResponse;
 import com.logistics.model.Order;
 import com.logistics.model.OrderStatus;
 import com.logistics.repository.OrderRepository;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
@@ -60,14 +62,15 @@ public class OrderService {
             Thread.currentThread().getName(), orderId);
 
         try {
-            // Simulate heavy processing with sleep
+
             Thread.sleep(processingDelayMs);
 
             Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found: " + orderId));
+            order.setStatus(OrderStatus.PROCESSING);
+            // Simulate heavy processing with sleep
 
             // Update status to PROCESSING
-            order.setStatus(OrderStatus.PROCESSING);
             orderRepository.save(order);
 
             // Perform inventory check (simulated)
@@ -121,12 +124,27 @@ public class OrderService {
         return Math.random() > paymentFailureRate;
     }
 
-    public List<Order> getAllOrders() {
-        return orderRepository.findAll();
+    public List<OrderDetailResponse> getAllOrders() {
+        return orderRepository.findAll().stream()
+            .map(this::convertToDetailResponse)
+            .collect(Collectors.toList());
     }
 
-    public Order getOrderById(Long id) {
-        return orderRepository.findById(id)
+    public OrderDetailResponse getOrderById(Long id) {
+        Order order = orderRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Order not found: " + id));
+        return convertToDetailResponse(order);
+    }
+
+    private OrderDetailResponse convertToDetailResponse(Order order) {
+        return new OrderDetailResponse(
+            order.getId(),
+            order.getCustomerName(),
+            order.getWeight(),
+            order.getDestination(),
+            order.getShippingType(),
+            order.getStatus().toString(),
+            order.getCost()
+        );
     }
 }

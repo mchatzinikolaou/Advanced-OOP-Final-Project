@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Positive;
 import java.time.LocalDateTime;
 
 @Entity
+@SuppressWarnings("JpaDataSourceORMInspection")
 @Table(name = "orders")
 public class Order {
 
@@ -140,5 +141,9 @@ public class Order {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public LocalDateTime getOrderDate() {
+        return createdAt;
     }
 }
