@@ -1,7 +1,7 @@
 # Logistics Supply Chain Management System
 
 ## Overview
-A modern REST API backend system for logistics and supply chain management, built with **Java 17+** and **Spring Boot 3.x**. This project demonstrates:
+A modern REST API backend system for logistics and supply chain management, built with **Java 17+** and **Spring Boot 3.2.1**. This project demonstrates:
 - **Clean Code** principles
 - **Concurrency** and async processing
 - **Design Patterns** (Strategy, Factory Method)
